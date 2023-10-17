@@ -73,3 +73,24 @@ class Hierbabuena inherits Menta{
 	}
 }
 
+class Parcela{
+	var ancho
+	var largo
+	var horasSol
+	var plantas
+	
+	method superficie() = return ancho*largo
+	
+	method maximasPlantas(){
+		if(ancho > largo){
+			return self.superficie()/5
+		}else{
+			return self.superficie()/3 + largo
+		}
+	}
+	
+	method complicaciones(){
+		return plantas.any({planta => planta.horasSol() < horasSol})
+	}
+}
+
