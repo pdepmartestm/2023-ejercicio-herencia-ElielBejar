@@ -1,6 +1,6 @@
 class Planta{
    var anio
-   var altura
+   var property altura
    
    
    method horasSol(){
@@ -32,6 +32,10 @@ class Menta inherits Planta{
 	override method espacio(){
 		return altura*3
 	}
+	
+	method parcelaIdeal(parcela){
+		return parcela.superficie() > 6
+	}
 }
 
 class Soja inherits Planta{
@@ -51,6 +55,10 @@ class Soja inherits Planta{
 	override method espacio(){
 		return altura/2
 	}
+	
+	method parcelaIdeal(parcela){
+		return parcela.horasSol() == self.horasSol()
+	}
 }
 
 class Quinoa inherits Planta{
@@ -59,11 +67,19 @@ class Quinoa inherits Planta{
 	override method nuevasSemillas(){
 		return super() || anio < 2005
 	}
+	
+	method parcelaIdeal(parcela){
+		return parcela.plantas().all({planta => planta.altura() <= 1.5})
+	}
 }
 
 class SojaTransgenica inherits Soja{
 	override method nuevasSemillas(){
 		return false
+	}
+	
+	override method parcelaIdeal(parcela){
+		return parcela.maximasPlantas() == 1
 	}
 }
 
@@ -76,8 +92,8 @@ class Hierbabuena inherits Menta{
 class Parcela{
 	var ancho
 	var largo
-	var horasSol
-	var plantas
+	var property horasSol
+	var property plantas
 	
 	method superficie() = return ancho*largo
 	
@@ -92,5 +108,17 @@ class Parcela{
 	method complicaciones(){
 		return plantas.any({planta => planta.horasSol() < horasSol})
 	}
+	
+	method plantar(planta){
+		if(self.maximasPlantas() < (plantas.size() + 1)){
+			throw new Exception (message = "falta de espacio") 
+		}else if(horasSol >= planta.horasSol() + 2){
+			throw new Exception (message = "insuficiente sol")
+		}else{
+			plantas.add(planta)
+		}
+	}
 }
+
+
 
