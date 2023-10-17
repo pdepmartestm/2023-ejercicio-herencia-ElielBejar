@@ -18,6 +18,10 @@ class Planta{
    method espacio(){
    	 return 0
    }
+   
+   method seAsociaBien(parcela){
+   	   return parcela.criterioAsociacion(self)
+   }
 }
 
 class Menta inherits Planta{
@@ -117,6 +121,18 @@ class Parcela{
 		}else{
 			plantas.add(planta)
 		}
+	}
+}
+
+class parcelaEcologica inherits Parcela{
+	method criterioAsociacion(planta){
+		return self.complicaciones() == false && planta.parcelaIdeal(self)
+	}
+}
+
+class parcelaIndustrial inherits Parcela{
+	method criterioAsociacion(planta){
+		return self.maximasPlantas() == 2 && planta.esFuerte()
 	}
 }
 
