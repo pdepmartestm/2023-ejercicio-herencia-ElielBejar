@@ -108,6 +108,10 @@ class Parcela{
 			return self.superficie()/3 + largo
 		}
 	}
+
+       method porcentajePlantasBienAsociadas(parcela){
+		return (plantas.count({planta => planta.seAsociaBien(parcela)})/plantas.size())*100
+	}
 	
 	method complicaciones(){
 		return plantas.any({planta => planta.horasSol() < horasSol})
@@ -143,18 +147,12 @@ object inta{
 	method promedioPlantas(){
 		return parcelas.sum({parcela => parcela.size()})/parcelas.size()
 	}
+
+       method masCuatroPlantas() = parcelas.filter({parcela => parcela.size()>4})
 	
 	method parcelaMasAutosustentable(){
-		const masCuatroPlantas = parcelas.filter({parcela => parcela.size()>4})
-		return masCuatroPlantas.max({parcela => self.porcentajePlantasBienAsociadas(parcela)})
+		return self.masCuatroPlantas().max({parcela => self.porcentajePlantasBienAsociadas(parcela)})
 		
-	}
-	
-	method porcentajePlantasBienAsociadas(parcela){
-		const total = parcela.plantas().size()
-		const bienAsociadas = parcela.plantas().filter({planta => planta.seAsociaBien(parcela)})
-		const totalAsociadas = bienAsociadas.size()
-		return (totalAsociadas/total)*100
 	}
 }
 
