@@ -136,5 +136,26 @@ class parcelaIndustrial inherits Parcela{
 	}
 }
 
+object inta{
+	
+	var parcelas = #{}
+	
+	method promedioPlantas(){
+		return parcelas.sum({parcela => parcela.size()})/parcelas.size()
+	}
+	
+	method parcelaMasAutosustentable(){
+		const masCuatroPlantas = parcelas.filter({parcela => parcela.size()>4})
+		return masCuatroPlantas.max({parcela => self.porcentajePlantasBienAsociadas(parcela)})
+		
+	}
+	
+	method porcentajePlantasBienAsociadas(parcela){
+		const total = parcela.plantas().size()
+		const bienAsociadas = parcela.plantas().filter({planta => planta.seAsociaBien(parcela)})
+		const totalAsociadas = bienAsociadas.size()
+		return (totalAsociadas/total)*100
+	}
+}
 
 
