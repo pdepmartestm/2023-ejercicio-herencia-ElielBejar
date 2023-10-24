@@ -1,159 +1,128 @@
 class Planta{
-   var anio
+   const anio
    var property altura
+      
+   method horasSol()
    
+   method esFuerte() = self.horasSol() > 10
    
-   method horasSol(){
-   	  return 0
-   }
-   
-   method esFuerte(){
-   	  return self.horasSol() > 10
-   }
-   
-   method nuevasSemillas(){
-   	  return self.esFuerte()
-   }
-   
-   method espacio(){
-   	 return 0
-   }
-   
-   method seAsociaBien(parcela){
+   method nuevasSemillas() =
+   	  return self.esFuerte() || self.adicional()
+     
+   method seAsociaBien(parcela) = 
    	   return parcela.criterioAsociacion(self)
-   }
+  
+	method adicional() 
 }
 
 class Menta inherits Planta{
-	override method horasSol(){
-		return 6
-	}
+
+	override method horasSol()= 6
 	
-	override method nuevasSemillas(){
-		return super() || altura > 0.4
-	}
+	override method adicional() = altura > 0.4
 	
-	override method espacio(){
-		return altura*3
-	}
+	method espacio()= altura*3
 	
-	method parcelaIdeal(parcela){
-		return parcela.superficie() > 6
-	}
+	method parcelaIdeal(parcela) = 
+		parcela.superficie() > 6
 }
 
 class Soja inherits Planta{
-	override method horasSol(){
-		if(altura < 0.5){
-			return 6
-		}else if(altura >= 0.5 && altura < 1){
-			return 7
-		}else{
-			return 9
-		}
-	}
-	override method nuevasSemillas(){
-		return super() || (anio > 2007 && altura > 1)
-	}
+	override method horasSol() = 
+		if(altura < 0.5)
+			 6
+		else if(altura >= 0.5 && altura < 1)
+			 7
+		else
+			 9
+		
 	
-	override method espacio(){
-		return altura/2
-	}
+	override method adicional()= anio > 2007 && altura > 1
 	
-	method parcelaIdeal(parcela){
-		return parcela.horasSol() == self.horasSol()
-	}
+	method espacio() = altura/2
+	
+	method parcelaIdeal(parcela) =
+		parcela.horasSol() == self.horasSol()
 }
 
 class Quinoa inherits Planta{
 	var property horasSol
 	
-	override method nuevasSemillas(){
-		return super() || anio < 2005
-	}
+	override method adicional() = anio < 2005
 	
 	method parcelaIdeal(parcela){
 		return parcela.plantas().all({planta => planta.altura() <= 1.5})
 	}
+	method espacio() = 0.5
 }
 
 class SojaTransgenica inherits Soja{
-	override method nuevasSemillas(){
-		return false
-	}
+	override method nuevasSemillas() = false
 	
-	override method parcelaIdeal(parcela){
-		return parcela.maximasPlantas() == 1
-	}
+	override method parcelaIdeal(parcela)=
+		parcela.maximasPlantas() == 1
 }
 
 class Hierbabuena inherits Menta{
-	override method espacio(){
-		return super()*2
-	}
+	override method espacio() = super()*2
 }
 
 class Parcela{
 	var ancho
 	var largo
-	var property horasSol
-	var property plantas
+	var horasSol
+	var plantas
 	
-	method superficie() = return ancho*largo
 	
-	method maximasPlantas(){
+	method cantPlantas() = plantas.size()
+	method superficie() = ancho*largo
+	
+	method maximasPlantas() =
 		if(ancho > largo){
-			return self.superficie()/5
+			self.superficie()/5
 		}else{
-			return self.superficie()/3 + largo
+			self.superficie()/3 + largo
 		}
-	}
 
-       method porcentajePlantasBienAsociadas(parcela){
-		return (plantas.count({planta => planta.seAsociaBien(parcela)})/plantas.size())*100
-	}
+     method porcentajePlantasBienAsociadas(parcela)
+		= (plantas.count({planta => planta.seAsociaBien(parcela)})/plantas.size())*100
 	
-	method complicaciones(){
-		return plantas.any({planta => planta.horasSol() < horasSol})
-	}
+	method complicaciones() =
+		plantas.any({planta => planta.horasSol() < horasSol})
 	
 	method plantar(planta){
-		if(self.maximasPlantas() < (plantas.size() + 1)){
-			throw new Exception (message = "falta de espacio") 
-		}else if(horasSol >= planta.horasSol() + 2){
-			throw new Exception (message = "insuficiente sol")
-		}else{
-			plantas.add(planta)
-		}
+		if(self.maximasPlantas() < (plantas.size() + 1))
+			throw new DomainException (message = "falta de espacio") 
+		if(horasSol >= planta.horasSol() + 2)
+			throw new DomainException (message = "insuficiente sol")
+		
+		plantas.add(planta)
+
 	}
 }
 
-class parcelaEcologica inherits Parcela{
-	method criterioAsociacion(planta){
-		return self.complicaciones() == false && planta.parcelaIdeal(self)
-	}
+class ParcelaEcologica inherits Parcela{
+	method criterioAsociacion(planta) =
+		not self.complicaciones() && planta.parcelaIdeal(self)
 }
 
-class parcelaIndustrial inherits Parcela{
-	method criterioAsociacion(planta){
-		return self.maximasPlantas() == 2 && planta.esFuerte()
-	}
+class ParcelaIndustrial inherits Parcela{
+	method criterioAsociacion(planta) =
+		self.maximasPlantas() == 2 && planta.esFuerte()
 }
 
 object inta{
 	
-	var parcelas = #{}
+	const parcelas = []
 	
-	method promedioPlantas(){
-		return parcelas.sum({parcela => parcela.size()})/parcelas.size()
-	}
+	method promedioPlantas() =
+		parcelas.sum({parcela => parcela.cantPlantas()})/parcelas.size()
 
-       method masCuatroPlantas() = parcelas.filter({parcela => parcela.size()>4})
+    method masCuatroPlantas() = parcelas.filter({parcela => parcela.cantPlantas()>4})
 	
-	method parcelaMasAutosustentable(){
-		return self.masCuatroPlantas().max({parcela => self.porcentajePlantasBienAsociadas(parcela)})
-		
-	}
+	method parcelaMasAutosustentable()
+		= self.masCuatroPlantas().max({parcela => parcela.porcentajePlantasBienAsociadas()})
+
 }
 
 
